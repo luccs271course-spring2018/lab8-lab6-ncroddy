@@ -9,9 +9,12 @@ public class SingleQueueService {
 
   public static void main(final String[] args) throws InterruptedException {
     // TODO read successive input lines until EOF and try to add them to the queue
+    final SimpleQueue<String> queue = new FixedArrayQueue<>(5);
+    for (int i = 0; i < args.length; i++) {
+      queue.offer(args[i]);
+    }
 
     // queue for customer names
-    final SimpleQueue<String> queue = new FixedArrayQueue<>(5);
 
     // lock object for thread safety
     final Object lock = new Object();
@@ -22,10 +25,13 @@ public class SingleQueueService {
             () -> {
               while (true) {
                 String current;
-		int remaining;
+                int remaining;
                 synchronized (lock) {
-                  current = null; // TODO try to take next name from queue
-		  remaining = 0; // TODO determine resulting size of queue
+                  current = queue.poll();
+                  // TODO try to take next name from queue
+                  remaining = queue.size();
+                  // TODO determine resulting size of queue
+
                 }
                 if (current == null) {
                   System.out.println("no one waiting");
@@ -49,7 +55,13 @@ public class SingleQueueService {
       final String name = input.nextLine();
       boolean result;
       synchronized (lock) {
-        result = false; // TODO try to add this name tothe queue
+        if (queue.offer(name) == false) {
+
+          result = false; // TODO try to add this name tothe queue
+        } else {
+          queue.offer(name);
+          result = true;
+        }
       }
       if (result) {
         System.out.println(name + " has joined the queue");
